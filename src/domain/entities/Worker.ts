@@ -1,21 +1,21 @@
 import { Task } from "./Task";
-import { WorkerStatus } from "../../types/enums";
-
 export class Worker {
-    public status: WorkerStatus = WorkerStatus.IDLE;
+    public isBusy: boolean = false;   
 
     constructor(public readonly id: string) {}
 
-    async process(task: Task) {
-        this.status = WorkerStatus.BUSY;
+    async process(task: Task): Promise<void> {
+        this.isBusy = true;
 
         task.start();
 
-        // simulate processing
-        await new Promise((res) => setTimeout(res, 1000));
+        try {
+            await new Promise((res) => setTimeout(res, 1000));
+            task.complete();
+        } catch (err) {
+            task.fail();
+        }
 
-        task.complete();
-
-        this.status = WorkerStatus.IDLE;
+        this.isBusy = false;
     }
 }

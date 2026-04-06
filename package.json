@@ -9,6 +9,10 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "events": "^3.3.0",
     "mongoose": "^9.4.1"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.2"
   }
 }
