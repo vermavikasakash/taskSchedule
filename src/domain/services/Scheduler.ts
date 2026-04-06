@@ -19,8 +19,8 @@ export class Scheduler {
             if (!worker) break;
 
             task.assign();
-
-            // 🔥 emit event instead of direct call
+            console.log("Assigning task:", task.id, "to", worker.id); 
+            // emit event instead of direct call
             eventBus.emit("taskAssigned", { task, worker });
         }
     }

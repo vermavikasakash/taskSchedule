@@ -7,12 +7,27 @@
   },
   "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "events": "^3.3.0",
+    "express": "^5.2.1",
     "mongoose": "^9.4.1"
   },
   "devDependencies": {
-    "@types/node": "^25.5.2"
-  }
+    "@types/events": "^3.0.3",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.5.2",
+    "nodemon": "^3.1.14",
+    "ts-node": "^10.9.2",
+    "typescript": "^6.0.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vermavikasakash/taskSchedule.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/vermavikasakash/taskSchedule/issues"
+  },
+  "homepage": "https://github.com/vermavikasakash/taskSchedule#readme",
+  "description": ""
 }

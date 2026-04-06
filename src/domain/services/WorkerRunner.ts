@@ -14,7 +14,7 @@ export class WorkerRunner {
         if (worker.id !== this.worker.id) return;
 
         await this.worker.process(task);
-
+        console.log(`Task ${task.id} completed with status ${task.status}`);
         eventBus.emit("taskCompleted", task);
       },
     );

@@ -9,7 +9,7 @@ export class TaskService {
         );
 
         taskQueue.enqueueBulk(taskObjects);
-
+        console.log("Tasks added:", taskObjects.length);
         scheduler.schedule();
     }
 }
