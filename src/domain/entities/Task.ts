@@ -1,28 +1,26 @@
 import { TaskStatus } from "../../types/enums";
 
 export class Task {
-    public status: TaskStatus = TaskStatus.PENDING;
-    public retryCount = 0;
+    public status: string = "PENDING";
 
-    constructor(
-        public readonly id: string,
-        public payload: any
-    ) {}
+    constructor(public id: string, public payload: any) {}
+
+    queue() {
+        this.status = "QUEUED";
+    }
 
     assign() {
-        this.status = TaskStatus.ASSIGNED;
+        this.status = "ASSIGNED";
     }
 
     start() {
-        this.status = TaskStatus.PROCESSING;
+        this.status = "PROCESSING";
     }
 
     complete() {
-        this.status = TaskStatus.COMPLETED;
+        this.status = "COMPLETED";
     }
-
     fail() {
-        this.retryCount++;
-        this.status = TaskStatus.FAILED;
-    }
+    this.status = "FAILED";
+}
 }
