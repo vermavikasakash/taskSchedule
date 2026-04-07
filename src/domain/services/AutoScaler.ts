@@ -15,16 +15,16 @@ export class AutoScaler {
       const pendingTasks = this.queue.getPendingCount();
       const workers = this.manager.getWorkerCount();
 
-      console.log(`📊 Tasks: ${pendingTasks}, Workers: ${workers}`);
+      console.log(`Tasks: ${pendingTasks}, Workers: ${workers}`);
 
       const effectiveWorkers = workers || 1;
 
-      // 🔼 SCALE UP
+      // SCALE UP
       if (pendingTasks > effectiveWorkers * this.HIGH_THRESHOLD) {
         this.manager.addWorker();
       }
 
-      // 🔽 SCALE DOWN
+      // SCALE DOWN
       else if (pendingTasks < workers && workers > 1) {
         this.manager.removeWorker();
       }

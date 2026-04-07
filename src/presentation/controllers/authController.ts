@@ -32,8 +32,13 @@ export const registerController = async (req: Request, res: Response) => {
       password: hashPass,
       phone,
     });
-
-    res.status(200).send({ success: true, user });
+    const { password: _, ...safeUser } = user.toObject();
+    res.status(200).send({
+      status: true,
+      success: true,
+      user: safeUser,
+      message: "User registered successfully",
+    });
   } catch (error) {
     res.status(500).send({ success: false, error });
   }
@@ -55,10 +60,12 @@ export const loginController = async (req: Request, res: Response) => {
       process.env.JWT_SECRET as string,
       { expiresIn: "7d" },
     );
-
+    const { password: _, ...safeUser } = user.toObject();
     res.send({
+      status: true,
       success: true,
-      user,
+      message: "Login successful",
+      user: safeUser,
       token,
     });
   } catch (error) {
@@ -80,7 +87,12 @@ export const getAgentsController = async (req: Request, res: Response) => {
 
     res
       .status(200)
-      .send({ success: true, message: "Agent fetched successfully", agent });
+      .send({
+        status: true,
+        success: true,
+        message: "Agent fetched successfully",
+        agent,
+      });
   } catch (error) {
     console.log(error);
     res.status(500).send({
@@ -95,5 +107,3 @@ export const getAgentsController = async (req: Request, res: Response) => {
 export const testController = (req: Request, res: Response) => {
   res.send("Token working");
 };
-
-

@@ -3,10 +3,10 @@ import {
   registerController,
   loginController,
   testController,
+  getAgentsController,
 } from "../controllers/authController";
 import {
   createTaskController,
-  getAgentsController,
   getAllTasksController,
   getDashboardStatsController,
   updateTaskStatusController,

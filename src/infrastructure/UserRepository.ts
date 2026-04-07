@@ -22,6 +22,6 @@ export class UserRepository {
     return UserModel.create(data);
   }
    async countDocuments(role: any) {
-    return UserModel.countDocuments({ role });
+    return UserModel.countDocuments(role);
   }
 }

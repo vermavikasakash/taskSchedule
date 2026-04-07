@@ -24,7 +24,7 @@ export class TaskRepository {
   }
 
   async updateTaskStatus(taskId: string, status: string) {
-    return TaskModel.findByIdAndUpdate(taskId, { status }, { new: true });
+    return TaskModel.findByIdAndUpdate(taskId, { status },  { returnDocument: "after" });
   }
   async getAllTasks() {
     return TaskModel.find({});

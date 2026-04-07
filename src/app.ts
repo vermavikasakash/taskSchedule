@@ -2,8 +2,10 @@ import express from "express";
 import {connectDB} from "./config/db";
 import { router as authRoute } from "./presentation/routes/authRoutes";
 import dotenv from "dotenv";
+
 const cors = require("cors")
 const colors = require("colors");
+const morgan = require("morgan");
 
 const app = express();
 
@@ -16,6 +18,7 @@ connectDB();
 // middleware
 app.use(cors())
 app.use(express.json());
+app.use(morgan("dev"));
 
 //routes
 app.use("/api/v1/auth", authRoute);

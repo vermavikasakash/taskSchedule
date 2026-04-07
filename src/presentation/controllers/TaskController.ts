@@ -18,6 +18,7 @@ export const createTaskController = async (req: Request, res: Response) => {
     await taskService.createTasks(tasks);
 
     return res.status(202).json({
+      status: true,
       success: true,
       message: "Tasks are being processed",
     });
@@ -65,6 +66,7 @@ export const updateTaskStatusController = async (
     await taskRepo.updateTaskStatus(taskId, status);
 
     res.status(200).json({
+      status: true,
       success: true,
       message: "Task updated",
     });
@@ -79,7 +81,12 @@ export const getAllTasksController = async (req: Request, res: Response) => {
     const task = await taskRepo.getAllTasks();
     res
       .status(200)
-      .send({ success: true, message: "Tasks fetched successfully", task });
+      .send({
+        status: true,
+        success: true,
+        message: "Tasks fetched successfully",
+        task,
+      });
   } catch (error) {
     console.log(error);
     res.status(500).send({
@@ -101,6 +108,7 @@ export const getMyTasksController = async (req: AuthRequest, res: Response) => {
     const task = await taskRepo.getTasksByAgent(userId);
 
     res.status(200).send({
+      status: true,
       success: true,
       task,
     });
@@ -122,6 +130,7 @@ export const getDashboardStatsController = async (
     const totalAgents = await userRepo.countDocuments({ role: 0 });
 
     res.status(200).json({
+      status: true,
       success: true,
       data: {
         totalTasks,
