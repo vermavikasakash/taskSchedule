@@ -1,7 +1,7 @@
 import { TaskQueue } from "../queue/TaskQueue";
 import { Worker } from "../entities/Worker";
 import { eventBus } from "../events/EventBus";
-import { RoundRobinStrategy } from "./AssignmentStrategy"; 
+import { RoundRobinStrategy } from "./AssignmentStrategy";
 
 export class Scheduler {
   private strategy = new RoundRobinStrategy();
@@ -12,21 +12,24 @@ export class Scheduler {
   ) {}
 
   private getNextAvailableWorker(): Worker | null {
-  const attempts = this.workers.length;
+    const attempts = this.workers.length;
 
-  for (let i = 0; i < attempts; i++) {
-    const worker = this.strategy.assign(this.workers);
+    for (let i = 0; i < attempts; i++) {
+      const worker = this.strategy.assign(this.workers);
 
-    if (!worker.isBusy) {
-      return worker;
+      if (!worker.isBusy) {
+        return worker;
+      }
     }
+
+    return null;
   }
 
-  return null;
-}
-
   schedule() {
-  setInterval(() => {
+    setInterval(() => this.run(), 100);
+  }
+
+  run() {
     if (this.queue.isEmpty()) return;
 
     const worker = this.getNextAvailableWorker();
@@ -43,9 +46,8 @@ export class Scheduler {
 
     eventBus.emit("taskAssigned", {
       task,
-      workerId: worker.id
+      workerId: worker.id,
     });
-
-  }, 100);
-}
+  }
+  
 }

@@ -1,4 +1,4 @@
-import { Worker} from "../entities/Worker";
+import { Worker } from "../entities/Worker";
 import { WorkerRunner } from "./WorkerRunner";
 import { TaskRepository } from "../../infrastructure/TaskRepository";
 
@@ -20,7 +20,10 @@ export class WorkerManager {
   addWorker() {
     if (this.workers.length >= this.MAX_WORKERS) return;
 
-    const worker = new Worker(`worker-${Date.now()}-${Math.random()}`);
+    const worker = new Worker(
+      `worker-${Date.now()}-${Math.random()}`,
+      this.taskRepository,
+    );
     const runner = new WorkerRunner(worker, this.taskRepository);
 
     this.workers.push(worker);
@@ -43,6 +46,6 @@ export class WorkerManager {
   }
 
   getIdleWorker(): Worker | null {
-    return this.workers.find(w => !w.isBusy) || null;
+    return this.workers.find((w) => !w.isBusy) || null;
   }
 }

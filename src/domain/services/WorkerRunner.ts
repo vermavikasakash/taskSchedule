@@ -23,20 +23,7 @@ export class WorkerRunner {
 
       await this.worker.process(task);
 
-      // Save result
-      await this.taskRepository.createTask({
-        firstName: task.payload.firstName,
-        phone: task.payload.phone,
-        notes: task.payload.notes,
-
-        status: task.status === "COMPLETED" ? "completed" : "pending",
-
-        taskId: task.id,
-        retryCount: task.retryCount,
-        internalStatus: task.status,
-      });
-
-      // ✅ Retry logic
+      //  Retry logic
       if (task.status === "QUEUED") {
         console.log("Re-enqueue (retry or rate limit):", task.id);
         taskQueue.enqueue(task);

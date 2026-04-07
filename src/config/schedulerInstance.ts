@@ -4,20 +4,24 @@ import { Worker } from "../domain/entities/Worker";
 import { WorkerRunner } from "../domain/services/WorkerRunner";
 import { TaskRepository } from "../infrastructure/TaskRepository";
 import { eventBus } from "../domain/events/EventBus";
+import { UserRepository } from "../infrastructure/UserRepository";
+import { AgentManager } from "../application/AgentManager";
 
 export const taskQueue = new TaskQueue();
 
-const workers = [
-    new Worker("W1"),
-    new Worker("W2"),
-];
-
+const userRepo = new UserRepository();
+const agentManager = new AgentManager(userRepo);
 const taskRepository = new TaskRepository();
 
-workers.forEach(w => new WorkerRunner(w,taskRepository));
+const workers = [
+  new Worker("W1", taskRepository, agentManager),
+  new Worker("W2", taskRepository, agentManager),
+];
+
+workers.forEach((w) => new WorkerRunner(w, taskRepository));
 
 export const scheduler = new Scheduler(taskQueue, workers);
 
 eventBus.on("taskCompleted", () => {
-    scheduler.schedule();
+  scheduler.schedule();
 });
