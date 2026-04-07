@@ -2,29 +2,31 @@ import { TaskQueue } from "../queue/TaskQueue";
 import { Worker } from "../entities/Worker";
 import { eventBus } from "../events/EventBus";
 
-export class Scheduler {   
-    private retryTimer: NodeJS.Timeout | null = null;
-
-    constructor(
-        private queue: TaskQueue,
-        private workers: Worker[]
-    ) {}
+export class Scheduler {
+  constructor(
+    private queue: TaskQueue,
+    private workers: Worker[],
+  ) {}
 
   schedule() {
     while (true) {
-        if (this.queue.isEmpty()) return;
+      if (this.queue.isEmpty()) return;
 
-        const worker = this.workers.find(w => !w.isBusy);
+      const worker = this.workers.find((w) => !w.isBusy);
 
-        if (!worker) return;
+      if (!worker) return;
 
-        const task = this.queue.dequeueBatch(1)[0];
+      const tasks = this.queue.dequeueBatch(1);
 
-        task.assign();
+      if(tasks.length === 0) return;
+      
+      const task = tasks[0];
 
-        console.log("Assigned:", task.id);
+      task.assign();
 
-        eventBus.emit("taskAssigned", { task, worker });
+      console.log("Assigned:", task.id);
+
+      eventBus.emit("taskAssigned", { task, worker });
     }
-}
+  }
 }

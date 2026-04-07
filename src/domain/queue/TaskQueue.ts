@@ -1,21 +1,39 @@
 import { Task } from "../entities/Task";
 
 export class TaskQueue {
-    private queue: Task[] = [];
+  private queue: Task[] = [];
 
-    enqueue(task: any) {       
-        this.queue.push(task);
-    }
-    
-    enqueueBulk(tasks: Task[]) {
-        this.queue.push(...tasks);
+  enqueue(task: any) {
+    this.queue.push(task);
+  }
+
+  enqueueBulk(tasks: Task[]) {
+    this.queue.push(...tasks);
+  }
+
+  dequeueBatch(size: number) {
+    const now = Date.now();
+
+    const selected: any[] = [];
+    const remaining: any[] = [];
+
+    for (let task of this.queue) {
+      if (
+        selected.length < size &&
+        (!task.nextRetryAt || task.nextRetryAt <= now)
+      ) {
+        selected.push(task);
+      } else {
+        remaining.push(task);
+      }
     }
 
-    dequeueBatch(size: number): Task[] {
-        return this.queue.splice(0, size);
-    }
+    this.queue = remaining;
 
-    isEmpty(): boolean {
-        return this.queue.length === 0;
-    }
+    return selected;
+  }
+
+  isEmpty(): boolean {
+    return this.queue.length === 0;
+  }
 }
