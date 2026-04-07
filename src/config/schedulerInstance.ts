@@ -14,7 +14,7 @@ const workers = [
 
 const taskRepository = new TaskRepository();
 
-workers.forEach(w => new WorkerRunner(w));
+workers.forEach(w => new WorkerRunner(w,taskRepository));
 
 export const scheduler = new Scheduler(taskQueue, workers);
 

@@ -3,6 +3,10 @@ import { Task } from "../entities/Task";
 export class TaskQueue {
     private queue: Task[] = [];
 
+    enqueue(task: any) {       
+        this.queue.push(task);
+    }
+    
     enqueueBulk(tasks: Task[]) {
         this.queue.push(...tasks);
     }

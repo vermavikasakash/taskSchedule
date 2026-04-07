@@ -7,6 +7,10 @@ export interface ITask extends Document {
     agentId: mongoose.Types.ObjectId;
     agentName: string;
     status: "pending" | "completed";
+
+    taskId?: string;
+    retryCount?: number;
+    internalStatus?: string;
 }
 
 const taskSchema = new Schema<ITask>(
@@ -18,16 +22,20 @@ const taskSchema = new Schema<ITask>(
         agentId: {
             type: Schema.Types.ObjectId,
             ref: "users",
-            required: true
+            required: false   // ⚠️ make optional
         },
 
-        agentName: { type: String, required: true, trim: true },
+        agentName: { type: String, trim: true, required: false }, // ⚠️ optional
 
         status: {
             type: String,
             enum: ["pending", "completed"],
             default: "pending"
-        }
+        },
+        
+        taskId: { type: String },
+        retryCount: { type: Number, default: 0 },
+        internalStatus: { type: String }
     },
     { timestamps: true }
 );

@@ -8,16 +8,15 @@ export class Scheduler {
         private workers: Worker[]
     ) {}
 
-    schedule() {
-    while (!this.queue.isEmpty()) {
-        const task = this.queue.dequeueBatch(1)[0];
+  schedule() {
+    while (true) {
+        if (this.queue.isEmpty()) return;
 
         const worker = this.workers.find(w => !w.isBusy);
 
-        if (!worker) {
-            console.log("No free worker");
-            return;
-        }
+        if (!worker) return;
+
+        const task = this.queue.dequeueBatch(1)[0];
 
         task.assign();
 
