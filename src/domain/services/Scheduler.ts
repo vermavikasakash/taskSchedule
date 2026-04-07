@@ -3,6 +3,8 @@ import { Worker } from "../entities/Worker";
 import { eventBus } from "../events/EventBus";
 
 export class Scheduler {   
+    private retryTimer: NodeJS.Timeout | null = null;
+
     constructor(
         private queue: TaskQueue,
         private workers: Worker[]
