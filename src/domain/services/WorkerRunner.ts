@@ -13,17 +13,17 @@ export class WorkerRunner {
 
   listen() {
     eventBus.on("taskAssigned", async ({ task, workerId }) => {
-      // ✅ Only process if this worker is assigned
+      // Only process if this worker is assigned
       if (workerId !== this.worker.id) return;
 
-      // ✅ Prevent double processing
+      //  Prevent double processing
       if (this.worker.isBusy) return;
 
       console.log(`Worker ${this.worker.id} processing:`, task.id);
 
       await this.worker.process(task);
 
-      // ✅ Save result
+      // Save result
       await this.taskRepository.createTask({
         firstName: task.payload.firstName,
         phone: task.payload.phone,

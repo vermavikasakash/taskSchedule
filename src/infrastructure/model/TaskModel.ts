@@ -22,10 +22,10 @@ const taskSchema = new Schema<ITask>(
         agentId: {
             type: Schema.Types.ObjectId,
             ref: "users",
-            required: false   // ⚠️ make optional
+            required: true   // 
         },
 
-        agentName: { type: String, trim: true, required: false }, // ⚠️ optional
+        agentName: { type: String, trim: true, required: true }, 
 
         status: {
             type: String,
