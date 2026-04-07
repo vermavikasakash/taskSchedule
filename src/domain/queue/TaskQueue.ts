@@ -36,4 +36,8 @@ export class TaskQueue {
   isEmpty(): boolean {
     return this.queue.length === 0;
   }
+  
+  getPendingCount() {
+  return this.queue.length;
+}
 }

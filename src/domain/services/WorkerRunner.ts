@@ -1,12 +1,12 @@
 import { eventBus } from "../events/EventBus";
 import { taskQueue } from "../../config/schedulerInstance";
 import { TaskRepository } from "../../infrastructure/TaskRepository";
-import { Worker} from "../entities/Worker";
+import { Worker } from "../entities/Worker";
 
 export class WorkerRunner {
   constructor(
     private worker: Worker,
-    private taskRepository: TaskRepository
+    private taskRepository: TaskRepository,
   ) {
     this.listen();
   }
@@ -38,7 +38,7 @@ export class WorkerRunner {
 
       // ✅ Retry logic
       if (task.status === "QUEUED") {
-        console.log("Retrying:", task.id);
+        console.log("Re-enqueue (retry or rate limit):", task.id);
         taskQueue.enqueue(task);
       } else {
         console.log("Done:", task.id);

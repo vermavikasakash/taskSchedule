@@ -1,3 +1,4 @@
+import { TaskQueue } from "../queue/TaskQueue";
 import { WorkerManager } from "./WorkerManager";
 
 export class AutoScaler {
@@ -6,23 +7,25 @@ export class AutoScaler {
 
   constructor(
     private manager: WorkerManager,
-    private queue: any // your queue
+    private queue: TaskQueue,
   ) {}
 
   start() {
-    setInterval(async () => {
-      const pendingTasks = await this.queue.getPendingCount();
+    setInterval(() => {
+      const pendingTasks = this.queue.getPendingCount();
       const workers = this.manager.getWorkerCount();
 
       console.log(`📊 Tasks: ${pendingTasks}, Workers: ${workers}`);
 
+      const effectiveWorkers = workers || 1;
+
       // 🔼 SCALE UP
-      if (pendingTasks > workers * this.HIGH_THRESHOLD) {
+      if (pendingTasks > effectiveWorkers * this.HIGH_THRESHOLD) {
         this.manager.addWorker();
       }
 
       // 🔽 SCALE DOWN
-      else if (pendingTasks < workers * this.LOW_THRESHOLD) {
+      else if (pendingTasks < workers && workers > 1) {
         this.manager.removeWorker();
       }
 
