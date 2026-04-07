@@ -1,6 +1,6 @@
 import express from "express";
 import {connectDB} from "./config/db";
-import { createTaskController } from "./presentation/controllers/TaskController";
+import { router as authRoute } from "./presentation/routes/authRoutes";
 import dotenv from "dotenv";
 const cors = require("cors")
 const colors = require("colors");
@@ -17,8 +17,8 @@ connectDB();
 app.use(cors())
 app.use(express.json());
 
-// route
-app.post("/tasks", createTaskController);
+//routes
+app.use("/api/v1/auth", authRoute);
 
 // health check (optional but useful)
 app.get("/", (req, res) => {

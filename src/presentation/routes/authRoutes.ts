@@ -2,18 +2,20 @@ import express from "express";
 import {
   registerController,
   loginController,
-  createTaskController,
   testController,
+} from "../controllers/authController";
+import {
+  createTaskController,
   getAgentsController,
   getAllTasksController,
   getDashboardStatsController,
   updateTaskStatusController,
   getMyTasksController,
-} from "../controllers/authController";
+} from "../controllers/TaskController";
 import { requireSignIn, isAdmin } from "../middleware/authMiddleware";
 
 //router object
-const router = express.Router();
+export const router = express.Router();
 
 //routing
 // ! REGISTER  (METHOD POST)
@@ -47,5 +49,3 @@ router.get("/myTasks", requireSignIn, getMyTasksController);
 
 // ! GET DASHBOARD STATS
 router.get("/dashboard-stats", getDashboardStatsController);
-
-module.exports = router;

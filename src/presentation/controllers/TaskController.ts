@@ -3,30 +3,32 @@ import { TaskService } from "../../application/TaskService";
 import { UserModel } from "../../infrastructure/model/UserModel";
 import { TaskModel } from "../../infrastructure/model/TaskModel";
 import { AuthRequest } from "../types/AuthRequest";
+import { TaskRepository } from "../../infrastructure/TaskRepository";
+import { UserRepository } from "../../infrastructure/UserRepository";
+
+const taskRepo = new TaskRepository();
+const userRepo = new UserRepository();
 
 const taskService = new TaskService();
 
-export const createTaskController = async (
-    req: Request,
-    res: Response
-) => {
-    try {
-        const { tasks } = req.body;
+export const createTaskController = async (req: Request, res: Response) => {
+  try {
+    const { tasks } = req.body;
 
-        await taskService.createTasks(tasks);
+    await taskService.createTasks(tasks);
 
-        return res.status(202).json({
-            success: true,
-            message: "Tasks are being processed",
-        });
-    } catch (error) {
-        console.error(error);
+    return res.status(202).json({
+      success: true,
+      message: "Tasks are being processed",
+    });
+  } catch (error) {
+    console.error(error);
 
-        return res.status(500).json({
-            success: false,
-            message: "Error in task creation",
-        });
-    }
+    return res.status(500).json({
+      success: false,
+      message: "Error in task creation",
+    });
+  }
 };
 // ? PATCH TASK STATUS CONTROLLER
 export const updateTaskStatusController = async (
@@ -34,69 +36,47 @@ export const updateTaskStatusController = async (
   res: Response,
 ) => {
   try {
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
     const { status } = req.body;
 
     if (!["pending", "completed"].includes(status)) {
       return res.status(400).json({ message: "Invalid status" });
     }
 
-    const task = await TaskModel.findById(req.params.id);
+    const taskId = req.params.id;
+
+    if (typeof taskId !== "string") {
+      return res.status(400).json({ message: "Invalid task id" });
+    }
+
+    const task = await TaskModel.findById(taskId);
 
     if (!task) {
       return res.status(404).json({ message: "Task not found" });
     }
 
-    if (task.agentId.toString() !== req.user?._id && req.user?.role !== 1) {
-      return res.status(403).json({
-        message: "Not authorized",
-      });
+    if (task.agentId.toString() !== req.user._id && req.user.role !== 1) {
+      return res.status(403).json({ message: "Not authorized" });
     }
 
-    task.status = status;
-    await task.save();
+    await taskRepo.updateTaskStatus(taskId, status);
 
     res.status(200).json({
       success: true,
       message: "Task updated",
-      task,
     });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Error updating task",
-    });
-  }
-};
-
-//? GET AGENTS
-export const getAgentsController = async (req: Request, res: Response) => {
-  try {
-    let agent = await UserModel.find({ role: 0 });
-
-    if (!agent || agent.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: "No agents available for task assignment",
-      });
-    }
-
-    res
-      .status(200)
-      .send({ success: true, message: "Agent fetched successfully", agent });
-  } catch (error) {
-    console.log(error);
-    res.status(500).send({
-      success: false,
-      message: "Can't find agent",
-      error,
-    });
+  } catch {
+    res.status(500).json({ message: "Error updating task" });
   }
 };
 
 //? GET ALL TASKS
 export const getAllTasksController = async (req: Request, res: Response) => {
   try {
-    let task = await TaskModel.find({});
+    const task = await taskRepo.getAllTasks();
     res
       .status(200)
       .send({ success: true, message: "Tasks fetched successfully", task });
@@ -113,7 +93,12 @@ export const getAllTasksController = async (req: Request, res: Response) => {
 //? GET AGENT TASKS
 export const getMyTasksController = async (req: AuthRequest, res: Response) => {
   try {
-    const task = await TaskModel.find({ agentId: req.user?._id });
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const userId = req.user._id;
+    const task = await taskRepo.getTasksByAgent(userId);
 
     res.status(200).send({
       success: true,
@@ -133,8 +118,8 @@ export const getDashboardStatsController = async (
   res: Response,
 ) => {
   try {
-    const totalTasks = await TaskModel.countDocuments();
-    const totalAgents = await UserModel.countDocuments({ role: 0 });
+    const totalTasks = await taskRepo.countTasks();
+    const totalAgents = await userRepo.countDocuments({ role: 0 });
 
     res.status(200).json({
       success: true,

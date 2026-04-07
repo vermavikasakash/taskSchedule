@@ -2,9 +2,9 @@ import { Request, Response } from "express";
 import { hashPassword, comparePassword } from "../helper/authHelper";
 import { UserModel } from "../../infrastructure/model/UserModel";
 import JWT from "jsonwebtoken";
+import { UserRepository } from "../../infrastructure/UserRepository";
 
-
-
+const userRepo = new UserRepository();
 
 // REGISTER
 export const registerController = async (req: Request, res: Response) => {
@@ -15,7 +15,8 @@ export const registerController = async (req: Request, res: Response) => {
       return res.status(400).send({ error: "All fields required" });
     }
 
-    const existingUser = await UserModel.findOne({ email });
+    const existingUser = await userRepo.getUserByEmail(email);
+
     if (existingUser) {
       return res.status(200).send({
         success: false,
@@ -25,12 +26,12 @@ export const registerController = async (req: Request, res: Response) => {
 
     const hashPass = await hashPassword(password);
 
-    const user = await new UserModel({
+    const user = await userRepo.createUser({
       name,
       email,
       password: hashPass,
       phone,
-    }).save();
+    });
 
     res.status(200).send({ success: true, user });
   } catch (error) {
@@ -43,7 +44,7 @@ export const loginController = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
-    const user = await UserModel.findOne({ email });
+    const user = await userRepo.getUserByEmail(email);
     if (!user) return res.status(404).send({ message: "User not found" });
 
     const match = await comparePassword(password, user.password);
@@ -65,6 +66,30 @@ export const loginController = async (req: Request, res: Response) => {
   }
 };
 
+//? GET AGENTS
+export const getAgentsController = async (req: Request, res: Response) => {
+  try {
+    let agent = await userRepo.getAgents();
+
+    if (!agent || agent.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No agents available for task assignment",
+      });
+    }
+
+    res
+      .status(200)
+      .send({ success: true, message: "Agent fetched successfully", agent });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Can't find agent",
+      error,
+    });
+  }
+};
 
 //? TEST TOKEN
 export const testController = (req: Request, res: Response) => {
