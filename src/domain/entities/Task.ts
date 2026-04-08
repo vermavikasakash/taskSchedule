@@ -4,7 +4,8 @@ export class Task {
   public status: string = "PENDING";
   public retryCount: number = 0;
   public maxRetries: number = 3;
-  nextRetryAt: number  = 0;
+  lastWorkerId?: string;
+  nextRetryAt: number = 0;
 
   constructor(
     public id: string,
@@ -26,7 +27,7 @@ export class Task {
   complete() {
     this.status = "COMPLETED";
   }
-  fail() {
+  retry() {
     this.retryCount++;
 
     if (this.retryCount >= this.maxRetries) {
@@ -34,8 +35,7 @@ export class Task {
     } else {
       this.status = "QUEUED";
       const delay = 1000 * Math.pow(2, this.retryCount); // exponential
-        this.nextRetryAt = Date.now() + delay;
+      this.nextRetryAt = Date.now() + delay;
     }
-
   }
 }

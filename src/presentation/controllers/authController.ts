@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { hashPassword, comparePassword } from "../helper/authHelper";
-import { UserModel } from "../../infrastructure/model/UserModel";
 import JWT from "jsonwebtoken";
 import { UserRepository } from "../../infrastructure/UserRepository";
 

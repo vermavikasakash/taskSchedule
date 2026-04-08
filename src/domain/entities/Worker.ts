@@ -31,12 +31,13 @@ export class Worker {
   }
 
   async process(task: Task): Promise<void> {
+     task.lastWorkerId = this.id;
+
     // RATE LIMIT CHECK
     if (!this.canProcess()) {
       console.log(`Worker ${this.id} rate limited`);
-
       task.queue(); // push back to queue
-      task.nextRetryAt = Date.now() + 200; // 200ms delay
+      task.retry(); 
       return;
     }
 
@@ -78,7 +79,7 @@ export class Worker {
       task.complete();
     } catch (err) {
       console.log("Failed to process task", task.id);
-      task.fail();
+      task.retry();
     }
 
     this.isBusy = false;

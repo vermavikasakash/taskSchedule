@@ -1,7 +1,5 @@
 import { Request, Response } from "express";
 import { TaskService } from "../../application/TaskService";
-import { UserModel } from "../../infrastructure/model/UserModel";
-import { TaskModel } from "../../infrastructure/model/TaskModel";
 import { AuthRequest } from "../types/AuthRequest";
 import { TaskRepository } from "../../infrastructure/TaskRepository";
 import { UserRepository } from "../../infrastructure/UserRepository";
@@ -52,8 +50,7 @@ export const updateTaskStatusController = async (
     if (typeof taskId !== "string") {
       return res.status(400).json({ message: "Invalid task id" });
     }
-
-    const task = await TaskModel.findById(taskId);
+    const task = await taskRepo.getTasksByTaskId(taskId);
 
     if (!task) {
       return res.status(404).json({ message: "Task not found" });

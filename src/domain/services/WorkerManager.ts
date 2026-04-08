@@ -1,6 +1,7 @@
 import { Worker } from "../entities/Worker";
 import { WorkerRunner } from "./WorkerRunner";
 import { TaskRepository } from "../../infrastructure/TaskRepository";
+import { AgentManager } from "../../application/AgentManager";
 
 export class WorkerManager {
   private workers: Worker[] = [];
@@ -9,7 +10,10 @@ export class WorkerManager {
   private MIN_WORKERS = 1;
   private MAX_WORKERS = 10;
 
-  constructor(private taskRepository: TaskRepository) {}
+  constructor(
+    private taskRepository: TaskRepository,
+    private agentManager: AgentManager,
+  ) {}
 
   start(initialWorkers: number = 2) {
     for (let i = 0; i < initialWorkers; i++) {
@@ -23,6 +27,7 @@ export class WorkerManager {
     const worker = new Worker(
       `worker-${Date.now()}-${Math.random()}`,
       this.taskRepository,
+      this.agentManager,
     );
     const runner = new WorkerRunner(worker, this.taskRepository);
 

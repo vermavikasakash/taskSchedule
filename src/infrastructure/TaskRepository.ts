@@ -32,4 +32,7 @@ export class TaskRepository {
   async countTasks() {
   return TaskModel.countDocuments();
 }
+   async getTasksByTaskId(taskId: string) {
+  return TaskModel.findById(taskId);
+}
 }

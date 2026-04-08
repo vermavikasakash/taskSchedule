@@ -32,13 +32,17 @@ export class Scheduler {
   run() {
     if (this.queue.isEmpty()) return;
 
-    const worker = this.getNextAvailableWorker();
-    if (!worker) return;
-
     const tasks = this.queue.dequeueBatch(1);
     if (tasks.length === 0) return;
 
     const task = tasks[0];
+
+    //  avoid same worker
+    const worker = this.workers.find(
+      (w) => !w.isBusy && w.id !== task.lastWorkerId,
+    );
+
+    if (!worker) return;
 
     task.assign();
 
@@ -49,5 +53,4 @@ export class Scheduler {
       workerId: worker.id,
     });
   }
-  
 }
