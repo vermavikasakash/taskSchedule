@@ -1,7 +1,7 @@
 import express from "express";
-import {connectDB} from "./config/db";
-import { router as authRoute } from "./presentation/routes/authRoutes";
 import dotenv from "dotenv";
+import { router as authRoute } from "./modules/auth/presentation/routes/authRoutes";
+import { connectDB } from "./shared/config/db";
 
 const cors = require("cors")
 const colors = require("colors");
