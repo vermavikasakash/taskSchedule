@@ -34,16 +34,16 @@ export class Worker {
   }
 
   private getRetryOutcome(task: Task): WorkerProcessResult {
-    return task.status === TaskStatus.QUEUED
-      ? WorkerProcessResult.REQUEUED
-      : WorkerProcessResult.FAILED;
+    return task.status === TaskStatus.FAILED
+      ? WorkerProcessResult.FAILED
+      : WorkerProcessResult.REQUEUED;
   }
 
-  private async persistTerminalFailure(task: Task) {
+  private async persistTaskState(task: Task) {
     try {
       await this.taskStore.createTaskRecord(task);
     } catch (error) {
-      console.error("Error saving failed task record:", error);
+      console.error("Error saving task record:", error);
     }
   }
 
@@ -53,11 +53,8 @@ export class Worker {
     if (!this.canProcess()) {
       console.log(`Worker ${this.id} rate limited`);
       task.retry();
+      await this.persistTaskState(task);
       const result = this.getRetryOutcome(task);
-
-      if (result === WorkerProcessResult.FAILED) {
-        await this.persistTerminalFailure(task);
-      }
 
       return result;
     }
@@ -66,6 +63,7 @@ export class Worker {
     this.isBusy = true;
 
     task.start();
+    await this.persistTaskState(task);
 
     try {
       if (Math.random() < 0.7) {
@@ -74,16 +72,13 @@ export class Worker {
 
       await new Promise((resolve) => setTimeout(resolve, 1000));
       task.complete();
-      await this.taskStore.createTaskRecord(task);
+      await this.persistTaskState(task);
       return WorkerProcessResult.COMPLETED;
     } catch (err) {
       console.log("Failed to process task", task.id);
       task.retry();
+      await this.persistTaskState(task);
       const result = this.getRetryOutcome(task);
-
-      if (result === WorkerProcessResult.FAILED) {
-        await this.persistTerminalFailure(task);
-      }
 
       return result;
     } finally {

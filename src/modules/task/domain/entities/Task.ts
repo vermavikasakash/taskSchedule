@@ -7,7 +7,7 @@ export interface TaskPayload {
 }
 
 export class Task {
-  public status: TaskStatus = TaskStatus.PENDING;
+  public status: TaskStatus = TaskStatus.QUEUED;
   public retryCount: number = 0;
   public maxRetries: number = 3;
   lastWorkerId?: string;
@@ -40,7 +40,7 @@ export class Task {
     if (this.retryCount >= this.maxRetries) {
       this.status = TaskStatus.FAILED;
     } else {
-      this.status = TaskStatus.QUEUED;
+      this.status = TaskStatus.RETRY;
       const delay = 1000 * Math.pow(2, this.retryCount);
       this.nextRetryAt = Date.now() + delay;
     }

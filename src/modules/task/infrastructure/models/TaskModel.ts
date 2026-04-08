@@ -1,14 +1,17 @@
 import mongoose, { Document, Schema } from "mongoose";
+import { TaskStatus } from "../../../../shared/enums/enums";
+
+export type TaskRecordStatus = "completed" | "failed";
 
 export interface ITask extends Document {
     firstName: string;
     phone: string;
     notes: string;
-    status: "pending" | "completed" | "failed";
+    status?: TaskRecordStatus;
 
     taskId?: string;
     retryCount?: number;
-    internalStatus?: string;
+    internalStatus: TaskStatus;
 }
 
 const taskSchema = new Schema<ITask>(
@@ -19,13 +22,18 @@ const taskSchema = new Schema<ITask>(
 
         status: {
             type: String,
-            enum: ["pending", "completed", "failed"],
-            default: "pending"
+            enum: ["completed", "failed"],
+            required: false
         },
         
         taskId: { type: String },
         retryCount: { type: Number, default: 0 },
-        internalStatus: { type: String }
+        internalStatus: {
+            type: String,
+            enum: Object.values(TaskStatus),
+            required: true,
+            default: TaskStatus.QUEUED
+        }
     },
     { timestamps: true }
 );

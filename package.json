@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "node --require ts-node/register --test src/**/*.test.ts",
+    "migrate:task-records": "node --require ts-node/register src/scripts/migratePendingTaskRecords.ts",
     "dev": "nodemon --exec ts-node src/app.ts"
   },
   "author": "",

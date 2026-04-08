@@ -2,10 +2,26 @@ import { Request, Response } from "express";
 import { AuthRequest } from "../../../auth/presentation/types/AuthRequest";
 import { TaskService } from "../../application/services/TaskService";
 import { TaskRepository } from "../../infrastructure/repositories/TaskRepository";
+import { TaskRecordStatus } from "../../infrastructure/models/TaskModel";
 
 const taskRepo = new TaskRepository();
 
 const taskService = new TaskService();
+
+const isTaskRecordStatus = (value: unknown): value is TaskRecordStatus =>
+  value === "completed" || value === "failed";
+
+const toTaskResponse = (taskRecord: any) => {
+  const plainTask =
+    typeof taskRecord?.toObject === "function"
+      ? taskRecord.toObject()
+      : taskRecord;
+
+  return {
+    ...plainTask,
+    currentStatus: plainTask.internalStatus ?? plainTask.status ?? "QUEUED",
+  };
+};
 
 export const createTaskController = async (req: Request, res: Response) => {
   try {
@@ -35,7 +51,7 @@ export const updateTaskStatusController = async (
   try {
     const { status } = req.body;
 
-    if (!["pending", "completed"].includes(status)) {
+    if (!isTaskRecordStatus(status)) {
       return res.status(400).json({ message: "Invalid status" });
     }
 
@@ -65,12 +81,13 @@ export const updateTaskStatusController = async (
 
 export const getAllTasksController = async (req: Request, res: Response) => {
   try {
-    const task = await taskRepo.getAllTasks();
+    const tasks = await taskRepo.getAllTasks();
+
     return res.status(200).send({
       status: true,
       success: true,
       message: "Tasks fetched successfully",
-      task,
+      task: tasks.map(toTaskResponse),
     });
   } catch (error) {
     console.log(error);

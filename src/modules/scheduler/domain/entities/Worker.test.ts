@@ -16,12 +16,12 @@ const createTask = () => {
 };
 
 test("worker requeues a task after a retryable failure", async () => {
-  const storedTasks: Task[] = [];
+  const persistedStatuses: TaskStatus[] = [];
   const worker = new Worker(
     "W1",
     {
       createTaskRecord: async (task: Task) => {
-        storedTasks.push(task);
+        persistedStatuses.push(task.status);
       },
     },
   );
@@ -34,10 +34,13 @@ test("worker requeues a task after a retryable failure", async () => {
     const result = await worker.process(task);
 
     assert.equal(result, WorkerProcessResult.REQUEUED);
-    assert.equal(task.status, TaskStatus.QUEUED);
+    assert.equal(task.status, TaskStatus.RETRY);
     assert.equal(task.retryCount, 1);
     assert.equal(worker.isBusy, false);
-    assert.equal(storedTasks.length, 0);
+    assert.deepEqual(persistedStatuses, [
+      TaskStatus.PROCESSING,
+      TaskStatus.RETRY,
+    ]);
     assert.ok(task.nextRetryAt > Date.now());
   } finally {
     Math.random = originalRandom;
@@ -67,7 +70,10 @@ test("worker marks a task as failed after the final retry", async () => {
     assert.equal(result, WorkerProcessResult.FAILED);
     assert.equal(task.status, TaskStatus.FAILED);
     assert.equal(task.retryCount, task.maxRetries);
-    assert.deepEqual(persistedStatuses, [TaskStatus.FAILED]);
+    assert.deepEqual(persistedStatuses, [
+      TaskStatus.PROCESSING,
+      TaskStatus.FAILED,
+    ]);
     assert.equal(worker.isBusy, false);
   } finally {
     Math.random = originalRandom;
@@ -94,7 +100,10 @@ test("worker persists the final completed status after successful processing", a
 
     assert.equal(result, WorkerProcessResult.COMPLETED);
     assert.equal(task.status, TaskStatus.COMPLETED);
-    assert.deepEqual(persistedStatuses, [TaskStatus.COMPLETED]);
+    assert.deepEqual(persistedStatuses, [
+      TaskStatus.PROCESSING,
+      TaskStatus.COMPLETED,
+    ]);
     assert.equal(worker.isBusy, false);
   } finally {
     Math.random = originalRandom;

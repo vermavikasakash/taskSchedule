@@ -42,7 +42,7 @@ export class WorkerRunner {
 
         task.retry();
 
-        if (task.status === TaskStatus.QUEUED) {
+        if (task.status === TaskStatus.RETRY) {
           console.log("Re-enqueue (unexpected crash):", task.id);
           this.taskQueue.enqueue(task);
         } else {
